@@ -2,7 +2,7 @@
  * @Description: description
  * @Date: 2022-05-23 09:30:03
  * @LastEditors: maicq
- * @LastEditTime: 2022-05-23 17:01:06
+ * @LastEditTime: 2022-05-24 19:38:37
  */
 
 use std::fs;
@@ -30,7 +30,7 @@ impl NpmParser for PnpmParser {
 					let keys = dep.keys();
 					for k in keys {
 						if let &yaml::Yaml::String(package_names) = &k {
-							let rspilt = if package_names.contains("_") {
+							let rspilt = if package_names.contains("_@") {
 								"_"
 							} else {
 								"/"
