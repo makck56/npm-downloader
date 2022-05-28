@@ -2,7 +2,7 @@
  * @Description: description
  * @Date: 2022-05-23 09:30:03
  * @LastEditors: maicq
- * @LastEditTime: 2022-05-24 19:38:37
+ * @LastEditTime: 2022-05-27 14:44:24
  */
 
 use std::fs;
@@ -30,19 +30,17 @@ impl NpmParser for PnpmParser {
 					let keys = dep.keys();
 					for k in keys {
 						if let &yaml::Yaml::String(package_names) = &k {
-							let rspilt = if package_names.contains("_@") {
-								"_"
-							} else {
-								"/"
-							};
+							let rspilt = "/";
 							let (registry, full_name) = package_names.split_once("/").unwrap();
+							let temp_version = package_names.rsplit_once("/").unwrap().1;
 							if registry == "" {
-								let (name, version) = if rspilt == "/" {
-									let (i_name, i_version) = full_name.rsplit_once(rspilt).unwrap();
-									(i_name, i_version)
-								} else {
-									let (name, _) = full_name.rsplit_once(rspilt).unwrap();
-									name.rsplit_once("/").unwrap()
+								let (name, version) = if temp_version.contains("_"){
+									let (n,v) = full_name.rsplit_once("_").unwrap().0.rsplit_once(rspilt).unwrap();
+									(n,v)
+								}else{
+									
+									let (n,v) = full_name.rsplit_once(rspilt).unwrap();
+									(n,v)
 								};
 								let package_name = if name.contains("@") {
 									name.split_once("/").unwrap().1

@@ -2,7 +2,7 @@
  * @Description: description
  * @Date: 2022-05-23 09:44:53
  * @LastEditors: maicq
- * @LastEditTime: 2022-05-23 17:02:32
+ * @LastEditTime: 2022-05-27 21:27:35
  */
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 use std::path::Path;
@@ -43,7 +43,7 @@ pub async fn download(url: &str) -> Result<()> {
     let body = client.get(url).send().await?.bytes().await?;
     let file_path = "download/".to_string() + url.rsplit_once("/").unwrap().1.into();
     let path = Path::new(&file_path);
-    println!("path:{:?}",path);
+    // println!("path:{:?}",path);
     let mut file = match File::create(&path) {
         Err(why) => panic!("couldn't create {}", why),
         Ok(file) => file,
