@@ -2,15 +2,18 @@
  * @Description: description
  * @Date: 2022-05-23 09:30:03
  * @LastEditors: maicq
- * @LastEditTime: 2022-05-27 14:44:24
+ * @LastEditTime: 2022-05-30 14:44:48
  */
 
 use std::fs;
 use yaml_rust::yaml;
 use yaml_rust::YamlLoader;
-
+pub struct PackageInfo{
+	pub file_name:String,
+	pub url:String,
+}
 pub trait NpmParser {
-	fn parse(&self, file_path: &str) -> Vec<String>;
+	fn parse(&self, file_path: &str) -> Vec<PackageInfo>;
 }
 
 pub struct PnpmParser {
@@ -18,7 +21,7 @@ pub struct PnpmParser {
 }
 
 impl NpmParser for PnpmParser {
-	fn parse(&self, file_path: &str) -> Vec<String> {
+	fn parse(&self, file_path: &str) -> Vec<PackageInfo> {
 		let mut result = vec![];
 		let file_str = fs::read_to_string(file_path).unwrap();
 		let docs = YamlLoader::load_from_str(&file_str).unwrap();
@@ -54,7 +57,12 @@ impl NpmParser for PnpmParser {
 								uri += "-";
 								uri += version;
 								uri += ".tgz";
-								result.push(uri);
+								let file_name = name.to_string().replace("/","_") + "_" + version +  ".tgz";
+								let package_info = PackageInfo {
+									file_name: file_name,
+									url: uri
+								};
+								result.push(package_info);
 							} else {
 								if let &yaml::Yaml::Hash(pack_info) = &dep.get(k).unwrap() {
 									if let &yaml::Yaml::Hash(resolution) = &pack_info
@@ -62,7 +70,11 @@ impl NpmParser for PnpmParser {
 										.unwrap()
 									{
 										let tarball_option = resolution.get(&yaml::Yaml::String("tarball".into()));
-										result.push(tarball_option.unwrap().as_str().unwrap().into());
+										//TODO other registry download file name
+										result.push(PackageInfo {
+											file_name: tarball_option.unwrap().as_str().unwrap().into(),
+											url:tarball_option.unwrap().as_str().unwrap().into()
+										});
 									}
 								}
 							}

@@ -2,15 +2,30 @@
  * @Description: description
  * @Date: 2022-05-23 09:44:53
  * @LastEditors: maicq
- * @LastEditTime: 2022-05-27 21:27:35
+ * @LastEditTime: 2022-05-30 14:47:42
  */
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+use std::fs::create_dir;
+use std::fs::read_dir;
+use crate::PackageInfo;
 use std::path::Path;
 
 use std::{
     fs::File,
     io::{Read, Write},
 };
+
+pub fn create_download_dir(){
+    match read_dir("download"){
+        Err(_) => {
+            match create_dir("download") {
+                Err(why) => panic!("couldn't create {}", why),
+                Ok(()) => println!("create download dir success"),
+            }
+        },
+        Ok(_) => println!("create download dir success")
+    }
+}
 
 #[allow(dead_code)]
 #[tokio::main]
@@ -38,12 +53,11 @@ pub async fn request_tarball(name: &str) -> Result<String> {
 }
 
 #[tokio::main]
-pub async fn download(url: &str) -> Result<()> {
+pub async fn download(package_info:PackageInfo) -> Result<()> {
     let client = reqwest::Client::new();
-    let body = client.get(url).send().await?.bytes().await?;
-    let file_path = "download/".to_string() + url.rsplit_once("/").unwrap().1.into();
+    let body = client.get(package_info.url).send().await?.bytes().await?;
+    let file_path = "download/".to_string() + &package_info.file_name;
     let path = Path::new(&file_path);
-    // println!("path:{:?}",path);
     let mut file = match File::create(&path) {
         Err(why) => panic!("couldn't create {}", why),
         Ok(file) => file,
